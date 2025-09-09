@@ -1,5 +1,4 @@
-# Library
-# cb_pricing_test6.py
+# cb_pricing_numpy.py
 # This script implements a pricer for convertible bonds using a binomial tree approach.
 # It includes detailed debug statements to trace the computation values step-by-step.
 
@@ -242,17 +241,6 @@ class CB_Pricer:
         )
 
 
-# Create a pricer instance and run the valuation
-pricer = CB_Pricer(**PARAMS)
-cb_price, equity_values, debt_values, market_values, bond_values, conv_values = (
-    pricer.price(verbose=True)
-)
-
-print("-" * 30)
-print(f"Calculated Convertible Bond Price (for N={PARAMS['N']}):")
-print(f"  - CB Value: {cb_price:.4f}\n")
-
-
 # ======= Plot helpers =======
 def plot_binomial_tree(tree, title, fmt_value):
     """Generic binomial drawing utility for 2D tree arrays (shape (N+1, N+1))."""
@@ -322,7 +310,14 @@ def plot_cb_slice(cb_vals, decisions, title, rate_index_fn=None):
 
 # ======= Run & Plot =======
 if __name__ == "__main__":
+    # Create a pricer instance and run the valuation
     pricer = CB_Pricer(**PARAMS)
+    cb_price, equity_values, debt_values, market_values, bond_values, conv_values = (
+        pricer.price(verbose=False)
+    )
+    print("-" * 30)
+    print(f"Calculated Convertible Bond Price (for N={PARAMS['N']}):")
+    print(f"  - CB Value: {cb_price:.4f}\n")
 
     # Trees
     plot_binomial_tree(
@@ -330,6 +325,6 @@ if __name__ == "__main__":
     )
     plot_binomial_tree(pricer.rf_tree, "Risk-Free Rate Tree", lambda v: f"{v:.3%}")
 
-    # CB price (2D slice)
-    cb_vals, exe_vals, hold_vals, decisions = pricer.price_full()
-    plot_cb_slice(cb_vals, decisions, "Convertible Bond Price Tree")
+    # # CB price (2D slice)
+    # cb_vals, exe_vals, hold_vals, decisions = pricer.price_full()
+    # plot_cb_slice(cb_vals, decisions, "Convertible Bond Price Tree")

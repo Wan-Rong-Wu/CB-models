@@ -1,4 +1,4 @@
-# cb_pricing_test6.py
+# cb_pricing_numba.py
 # This script implements a pricer for convertible bonds using a binomial tree approach.
 # It includes detailed debug statements to trace the computation values step-by-step.
 
@@ -22,10 +22,22 @@ hv.extension("bokeh")
 pn.extension("bokeh")
 
 # Configure logging
+# Create formatters
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+# Create handlers
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
+stream_handler.setFormatter(formatter)
+
+file_handler = logging.FileHandler("cb_pricer.log")
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(formatter)
+
+# Configure root logger
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(), logging.FileHandler("cb_pricer.log")],
+    level=logging.DEBUG,  # Set to DEBUG to capture all messages
+    handlers=[stream_handler, file_handler],
 )
 logger = logging.getLogger(__name__)
 
@@ -256,26 +268,26 @@ class CB_Pricer:
             for i in range(self.N + 1):
                 for j in range(self.N + 1):
                     if j <= i:
-                        logger.debug(
+                        logger.info(
                             f"n={self.N} i={i} j={j} | S={self.stock_tree[self.N, j]:.2f} r={self.rf_tree[self.N, i]:.2%} CB={cb_values[self.N, i, j]:.2f} Bond={bond_values[self.N, i, j]:.2f} Conv={conv_values[self.N, i, j]:.2f}"
                         )
 
             # Backward induction logging
             for n in range(self.N - 1, -1, -1):
-                logger.debug(f"\nTime Step n = {n}:")
-                logger.debug("=" * 85)
+                logger.info(f"\nTime Step n = {n}:")
+                logger.info("=" * 85)
                 for i in range(n + 1):
                     for j in range(n + 1):
                         stock_price = self.stock_tree[n, j]
                         rf = self.rf_tree[n, i]
-                        logger.debug(
+                        logger.info(
                             f"n={n} i={i} j={j} | S={stock_price:.2f} r={rf:.2%} CB={cb_values[n, i, j]:.2f} B={bond_values[n, i, j] * self.units:.2f} Conv={conv_values[n, i, j]:.2f}"
                         )
 
         end_time = time.time()
         logger.info(f"Valuation calculation time: {end_time - start_time:.4f} seconds")
 
-        # Debug: Print the final CB value
+        # Print the final CB value
         logger.info(f"Final CB Value at root node: {cb_values[0, 0, 0]:.4f}")
 
         return (
@@ -319,17 +331,6 @@ class CB_Pricer:
                         decisions[n, i, j] = conv_values[n, i, j] > bond_values[n, i, j]
 
         return cb_values, exe_values, hold_values, decisions
-
-
-# Create a pricer instance and run the valuation
-pricer = CB_Pricer(**PARAMS)
-cb_price, equity_values, debt_values, market_values, bond_values, conv_values = (
-    pricer.price(verbose=True)
-)
-
-logger.info("-" * 30)
-logger.info(f"Calculated Convertible Bond Price (for N={PARAMS['N']}):")
-logger.info(f"  - CB Value: {cb_price:.4f}")
 
 
 # ======= HvPlot helpers =======
@@ -501,16 +502,26 @@ def create_dashboard(pricer, cb_vals, decisions, output_dir="plots"):
 
 # ======= Run & Plot =======
 if __name__ == "__main__":
-    # Run pricer with the new implementation
+    # Create a pricer instance and run the valuation
     pricer = CB_Pricer(**PARAMS)
 
+    logger.info("=" * 30)
+    cb_price, equity_values, debt_values, market_values, bond_values, conv_values = (
+        pricer.price(verbose=False)
+    )
+    logger.info(f"Calculated Convertible Bond Price (for N={PARAMS['N']}):")
+    logger.info(f"  - CB Value: {cb_price:.4f}")
+    logger.info("=" * 30)
+
+    logger.info("=" * 30)
     # Get full pricing results
-    cb_vals, exe_vals, hold_vals, decisions = pricer.price_full()
+    cb_vals, exe_vals, hold_vals, decisions = pricer.price_full(verbose=False)
+    logger.info("=" * 30)
 
     # Create and save interactive dashboard
     dashboard = create_dashboard(pricer, cb_vals, decisions, output_dir="plots")
 
-    logger.info("All plots have been generated and saved to the 'plots' directory.")
+    logger.info("All plots have been generated and saved to the ./plots directory.")
     logger.info(
         "Open plots/dashboard.html in a web browser to view the interactive dashboard."
     )
