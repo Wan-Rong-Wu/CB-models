@@ -12,3 +12,6 @@ wheels/
 # Project specific ignores
 *.html
 *.log
+
+# macOS specific ignores
+.DS_Store
