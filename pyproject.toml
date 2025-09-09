@@ -13,4 +13,5 @@ dependencies = [
     "bokeh>=3.6.2",
     "polars>=1.33.0",
     "pyarrow>=21.0.0",
+    "matplotlib>=3.10.6",
 ]
