@@ -21,7 +21,7 @@ A convertible bond pricing tool using binomial tree methods with Numba accelerat
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/Wan-Rong-Wu/CB-models.git
 cd cb_pricer
 
 # Install dependencies using uv
@@ -32,7 +32,7 @@ uv sync
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/Wan-Rong-Wu/CB-models.git
 cd cb_pricer
 
 # Create virtual environment
