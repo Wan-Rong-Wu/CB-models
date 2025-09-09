@@ -63,7 +63,7 @@ PARAMS = {
 # ================================================================================
 # Numba-optimized computational kernels
 # ================================================================================
-@njit
+@njit(parallel=True, cache=True)
 def build_rf_tree_numba(r0, r_vol, dt, N):
     """Build the risk-free rate tree using numba acceleration."""
     tree = np.zeros((N + 1, N + 1))
@@ -76,7 +76,7 @@ def build_rf_tree_numba(r0, r_vol, dt, N):
     return tree
 
 
-@njit
+@njit(parallel=True, cache=True)
 def build_stock_tree_numba(S_0, s_vol, dt, N):
     """Build the stock price tree using numba acceleration."""
     tree = np.zeros((N + 1, N + 1))
@@ -89,7 +89,7 @@ def build_stock_tree_numba(S_0, s_vol, dt, N):
     return tree
 
 
-@njit
+@njit(parallel=True, cache=True)
 def price_backward_induction_numba(
     N,
     dt,
